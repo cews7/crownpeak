@@ -1,6 +1,5 @@
 #Convert 2523.04
 # => "Two thousand five hundred twenty-three and 04/100 dollars"
-require 'pry'
 class Convert
   def dic_up_to_nine
     {"0" => "", "1" => "one ", "2" => "two ", "3" => "three ", "4" => "four ", "5" => "five ",

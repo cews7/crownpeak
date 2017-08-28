@@ -1,12 +1,6 @@
 #Convert 2523.04
 # => "Two thousand five hundred twenty-three and 04/100 dollars"
-require 'pry'
 class Convert
-  #say the number, then say the place that number falls under
-  #unless it's the tens place or ones place
-  #if decimal, replace the decimal with the word "and"
-  #turn the decimal amount into a fraction
-  #say the word "dollars" on the end regardless
   def nums_left_of_decimal(dollar_amount)
     collector = Array.new
     dollar_amount.to_s.chars do |char|
