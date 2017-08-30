@@ -1,12 +1,6 @@
 ## Code Challenge: convert dollar amount into string
 - e.g. 10 => ten dollars, 2015.35 => two thousand fifteen and 35/100 dollars
 
-### Iteration 0
-- My first attempt at the problem is shown in the convert_ints_into_words.rb file
-
-### Iteration 1
-- My second attempt at the problem is shown in the convert.rb file
-
 ### Run tests for convert.rb with the following command:
 
 ```ruby test/convert_test.rb``` (15 passing tests 21 assertions)
