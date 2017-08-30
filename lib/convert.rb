@@ -1,6 +1,5 @@
 #Convert 2523.04
 # => "Two thousand five hundred twenty-three and 04/100 dollars"
-require 'pry'
 class Convert
   attr_accessor :m
 
@@ -89,4 +88,4 @@ class Convert
    return words
   end
 end
-Convert.new.money_to_words(22245.78)
+Convert.new.money_to_words(3242645.78)
