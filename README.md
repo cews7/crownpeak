@@ -8,7 +8,7 @@
 - Second attempt at the problem is shown in the convert.rb file
 
 ### Iteration 2
-- See refactor branch for refactored code 
+- See refactor branch for refactored convert.rb  
 
 ### Run tests for convert.rb with the following command:
 
