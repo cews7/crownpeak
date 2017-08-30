@@ -2,10 +2,13 @@
 - e.g. 10 => ten dollars, 2015.35 => two thousand fifteen and 35/100 dollars
 
 ### Iteration 0
-- My first attempt at the problem is shown in the convert_ints_into_words.rb file
+- First attempt at the problem is shown in the convert_ints_into_words.rb file
 
 ### Iteration 1
-- My second attempt at the problem is shown in the convert.rb file
+- Second attempt at the problem is shown in the convert.rb file
+
+### Iteration 2
+- See refactor branch for refactored code 
 
 ### Run tests for convert.rb with the following command:
 
