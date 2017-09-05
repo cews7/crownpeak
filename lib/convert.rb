@@ -1,11 +1,13 @@
 #Convert 2523.04
 # => "Two thousand five hundred twenty-three and 04/100 dollars"
+require 'pry'
 class Convert
   attr_accessor :m
 
   def money_to_words(a)
-    words = ""
+    zero_check(a)
     decimal_chopper(a)
+    words = ""
     m.reverse.chars.each_with_index do |char, index|
       unless char == "0" && m.to_s.reverse.chars[index + 1] != "1"
         words = include_places(words, index, char)
@@ -43,6 +45,10 @@ class Convert
 
   def places
     ["hundred ", "thousand ", "million "]
+  end
+
+  def zero_check(a)
+    print "zero" if a.to_s.length == 1 && a == 0
   end
 
   def fraction_check(a)
@@ -88,4 +94,4 @@ class Convert
    return words
   end
 end
-Convert.new.money_to_words(3242645.78)
+Convert.new.money_to_words(0)
