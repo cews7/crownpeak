@@ -10,13 +10,13 @@ class Convert
     end
   end
 
-  def without_decimal(a)
-  end
-
   def with_decimal(a)
     cents = a.to_s.reverse[0..1].reverse
     amount_minus_cents = a.to_s.chop.chop.chop
     generate_words(amount_minus_cents, cents)
+  end
+
+  def without_decimal(a)
   end
 
   def generate_words(amount_minus_cents, cents = nil)
@@ -27,25 +27,59 @@ class Convert
     print "#{phrase}and #{fraction(cents)} dollars"
   end
 
-  def fraction(cents)
-    "#{cents}/100"
-  end
-
-  def place_value_search(num)
-    #look at where this num is in whole array
-    #set the place_value, depending on the modulo
-    #3 % 4 => 3
-    #3 % 2 => 1
-    #3 % 3 => 0
-  end
-
   def convert_number_to_word(phrase, amount_minus_cents, num)
     solo_ten_check(phrase, amount_minus_cents)
-    !phrase.eql?("ten ") ? dictionary_up_to_nine[num] : ""
+    !phrase.eql?("ten ") ? begin_filter(phrase, amount_minus_cents, num) : ""
   end
 
   def solo_ten_check(phrase, amount_minus_cents)
     amount_minus_cents.eql?("10") && !phrase.include?("ten") ? phrase << "ten " : ""
+  end
+
+  def begin_filter(phrase, amount_minus_cents, num)
+    if amount_minus_cents.length.eql?(1)
+      dictionary_up_to_nine[num]
+    else
+      amount_over_single_digit(phrase, amount_minus_cents, num)
+    end
+  end
+
+  def amount_over_single_digit(phrase, amount_minus_cents, num)
+    if amount_minus_cents.length > 2
+      num_to_word(amount_minus_cents, num) + ' ' + place_value_search(amount_minus_cents, num)
+    else
+      num_to_word(amount_minus_cents, num)
+    end
+  end
+
+  def num_to_word(amount_minus_cents, num)
+    if amount_minus_cents.to_i > 10 && amount_minus_cents.to_i < 20
+      eleven_thru_nineteen(amount_minus_cents, num)
+    elsif amount_minus_cents.to_i > 19 && amount_minus_cents.to_i < 100
+      twenty_thru_ninety_nine(amount_minus_cents, num)
+    else
+      hundred_and_over(amount_minus_cents, num)
+    end
+  end
+
+  def eleven_thru_nineteen(amount_minus_cents, num)
+  end
+
+  def twenty_thru_ninety_nine(amount_minus_cents, num)
+    #solve for 20, 30, 40, etc...
+    if amount_minus_cents[1].eql?("0") && !phrase.include?(dictionary_up_to_ninety[amount_minus_cents[0]])
+      dictionary_up_to_ninety[amount_minus_cents[0]]
+    end
+  end
+
+  def hundred_and_over(amount_minus_cents, num)
+  end
+
+  def place_value_search(amount_minus_cents, num)
+  end
+
+  def fraction(cents)
+    "#{cents}/100"
   end
 
   def dictionary_up_to_nine
@@ -68,4 +102,4 @@ class Convert
     ["hundred ", "thousand ", "million ", "billion "]
   end
 end
-Convert.new.amount_to_words("%.2f" % 0.10)
+Convert.new.amount_to_words("%.2f" % 20.09)
