@@ -2,6 +2,8 @@
 # => "Two thousand five hundred twenty-three and 04/100 dollars"
 require 'pry'
 class Convert
+  attr_accessor :phrase
+
   def amount_to_words(a)
     if a.to_s.include? "."
       with_decimal(a)
@@ -20,31 +22,31 @@ class Convert
   end
 
   def generate_words(amount_minus_cents, cents = nil)
-    phrase = ''
+    @phrase = ''
     amount_minus_cents.chars.reverse.map do |num|
-      phrase << convert_number_to_word(phrase, amount_minus_cents, num)
+      phrase << convert_number_to_word(amount_minus_cents, num)
     end
     print "#{phrase}and #{fraction(cents)} dollars"
   end
 
-  def convert_number_to_word(phrase, amount_minus_cents, num)
-    solo_ten_check(phrase, amount_minus_cents)
-    !phrase.eql?("ten ") ? begin_filter(phrase, amount_minus_cents, num) : ""
+  def convert_number_to_word(amount_minus_cents, num)
+    solo_ten_check(amount_minus_cents)
+    !phrase.eql?("ten ") ? begin_filter(amount_minus_cents, num) : ""
   end
 
-  def solo_ten_check(phrase, amount_minus_cents)
+  def solo_ten_check(amount_minus_cents)
     amount_minus_cents.eql?("10") && !phrase.include?("ten") ? phrase << "ten " : ""
   end
 
-  def begin_filter(phrase, amount_minus_cents, num)
+  def begin_filter(amount_minus_cents, num)
     if amount_minus_cents.length.eql?(1)
       dictionary_up_to_nine[num]
     else
-      amount_over_single_digit(phrase, amount_minus_cents, num)
+      amount_over_single_digit(amount_minus_cents, num)
     end
   end
 
-  def amount_over_single_digit(phrase, amount_minus_cents, num)
+  def amount_over_single_digit(amount_minus_cents, num)
     if amount_minus_cents.length > 2
       num_to_word(amount_minus_cents, num) + ' ' + place_value_search(amount_minus_cents, num)
     else
@@ -63,12 +65,26 @@ class Convert
   end
 
   def eleven_thru_nineteen(amount_minus_cents, num)
+    if amount_minus_cents[0].eql?("1") && !phrase.include?(dictionary_for_teens[amount_minus_cents[1]])
+      dictionary_for_teens[amount_minus_cents[1]]
+    else
+      ""
+    end
   end
 
   def twenty_thru_ninety_nine(amount_minus_cents, num)
-    #solve for 20, 30, 40, etc...
-    if amount_minus_cents[1].eql?("0") && !phrase.include?(dictionary_up_to_ninety[amount_minus_cents[0]])
+    if !amount_minus_cents[1].eql?("0") && !phrase.include?(dictionary_up_to_ninety[amount_minus_cents[0]] + dictionary_up_to_nine[amount_minus_cents[1]])
+      dictionary_up_to_ninety[amount_minus_cents[0]] + dictionary_up_to_nine[amount_minus_cents[1]]
+    else
+     handle_all_tens(amount_minus_cents, num)
+    end
+  end
+
+  def handle_all_tens(amount_minus_cents, num)
+    if !phrase.include?(dictionary_up_to_ninety[amount_minus_cents[0]])
       dictionary_up_to_ninety[amount_minus_cents[0]]
+    else
+      ""
     end
   end
 
@@ -93,13 +109,15 @@ class Convert
   end
 
   def dictionary_for_teens
-    {"one" => "eleven", "two" => "twelve", "three" => "thirteen",
-     "four" => "fourteen", "five" => "fifteen", "six" => "sixteen", "seven" => "seventeen",
-     "eight" => "eighteen", "nine" => "nineteen"}
+    {"1" => "eleven ", "2" => "twelve ", "3" => "thirteen ",
+     "4" => "fourteen ", "5" => "fifteen ", "6" => "sixteen ", "7" => "seventeen ",
+     "8" => "eighteen ", "9" => "nineteen "}
   end
+
+  #may need a separate teen dictionary for over hunred
 
   def place_values
     ["hundred ", "thousand ", "million ", "billion "]
   end
 end
-Convert.new.amount_to_words("%.2f" % 20.09)
+Convert.new.amount_to_words("%.2f" % 89.90)
