@@ -5,7 +5,7 @@ class Convert
   attr_accessor :phrase
 
   def amount_to_words(a)
-    if a.to_s.include? "."
+    if a.include? "."
       with_decimal(a)
     else
       without_decimal(a)
@@ -13,20 +13,63 @@ class Convert
   end
 
   def with_decimal(a)
-    cents = a.to_s.reverse[0..1].reverse
-    amount_minus_cents = a.to_s.chop.chop.chop
-    generate_words(amount_minus_cents, cents)
+    cents = a.reverse[0..1].reverse
+    amount_minus_cents = a.chop.chop.chop
+    route_selction(amount_minus_cents, cents)
   end
 
   def without_decimal(a)
+    route_selction(amount_minus_cents, cents)
   end
 
-  def generate_words(amount_minus_cents, cents = nil)
+  def route_selction(amount_minus_cents, cents)
+    if amount_minus_cents.to_i < 1000
+      generate_words_up_to_thousand(amount_minus_cents, cents)
+    else
+      generate_words_past_thousand(amount_minus_cents, cents)
+    end
+  end
+
+  def generate_words_past_thousand(amount_minus_cents, cents)
+    thousand_over_phrase = ''
+    counter = 1
+    amount = amount_minus_cents.to_i
+    while amount != 0 do
+      current_place = place_value_search(amount_minus_cents)
+      current_value = amount_minus_cents.to_i / (1000 ** (amount_minus_cents.length / 3 - counter + 1))
+      generate_words_up_to_thousand("#{current_value}", cents)
+      counter += 1
+      amount = amount / (1000 ** counter)
+      thousand_over_phrase << phrase + current_place
+    end
+    print thousand_over_phrase + "and " + fraction(cents) + " dollars" if !cents.eql?("00")
+    print thousand_over_phrase + "dollars" if cents.eql?("00")
+  end
+
+  def place_value_search(amount_minus_cents)
+    index = amount_minus_cents.length / 3 - 1
+    place_values[index]
+  end
+
+  def place_values
+    ["thousand ", "million ", "billion "]
+  end
+
+  def generate_words_up_to_thousand(amount_minus_cents, cents)
     @phrase = ''
     amount_minus_cents.chars.reverse.map do |num|
       phrase << convert_number_to_word(amount_minus_cents, num)
     end
-    print "#{phrase}and #{fraction(cents)} dollars"
+     print_phrase(amount_minus_cents, cents) unless caller_locations.first.label.eql?("generate_words_past_thousand")
+  end
+
+  def print_phrase(amount_minus_cents, cents)
+    print "#{phrase}dollar" if amount_minus_cents == "1"
+    if cents == "00" && amount_minus_cents != "1"
+      print "#{phrase}dollars"
+    elsif amount_minus_cents != "1"
+      print "#{phrase}and #{fraction(cents)} dollars"
+    end
   end
 
   def convert_number_to_word(amount_minus_cents, num)
@@ -48,7 +91,7 @@ class Convert
 
   def amount_over_single_digit(amount_minus_cents, num)
     if amount_minus_cents.length > 2
-      num_to_word(amount_minus_cents, num) + ' ' + place_value_search(amount_minus_cents, num)
+      num_to_word(amount_minus_cents, num)
     else
       num_to_word(amount_minus_cents, num)
     end
@@ -60,7 +103,7 @@ class Convert
     elsif amount_minus_cents.to_i > 19 && amount_minus_cents.to_i < 100
       twenty_thru_ninety_nine(amount_minus_cents, num)
     else
-      hundred_and_over(amount_minus_cents, num)
+      hundred_thru_nine_hundred_ninety_nine(amount_minus_cents, num)
     end
   end
 
@@ -88,10 +131,22 @@ class Convert
     end
   end
 
-  def hundred_and_over(amount_minus_cents, num)
-  end
-
-  def place_value_search(amount_minus_cents, num)
+  def hundred_thru_nine_hundred_ninety_nine(amount_minus_cents, num)
+    if ("2".."9").include?(amount_minus_cents[1]) && !amount_minus_cents[2].eql?("0") && !phrase.include?(dictionary_up_to_nine[amount_minus_cents[0]] + "hundred " + dictionary_up_to_ninety[amount_minus_cents[1]] + dictionary_up_to_nine[amount_minus_cents[2]])
+      dictionary_up_to_nine[amount_minus_cents[0]] + "hundred " + dictionary_up_to_ninety[amount_minus_cents[1]] + dictionary_up_to_nine[amount_minus_cents[2]]
+    elsif amount_minus_cents[1].eql?("1") && !amount_minus_cents[2].eql?("0") && !phrase.include?(dictionary_up_to_nine[amount_minus_cents[0]] + "hundred " + dictionary_for_teens[amount_minus_cents[2]])
+      dictionary_up_to_nine[amount_minus_cents[0]] + "hundred " + dictionary_for_teens[amount_minus_cents[2]]
+    elsif amount_minus_cents[1].eql?("1") && amount_minus_cents[2].eql?("0") && !phrase.include?(dictionary_up_to_nine[amount_minus_cents[0]] + "hundred " + "ten ")
+      dictionary_up_to_nine[amount_minus_cents[0]] + "hundred " + "ten "
+    elsif amount_minus_cents[1].eql?("0") && !amount_minus_cents[2].eql?("0") && !phrase.include?(dictionary_up_to_nine[amount_minus_cents[0]] + "hundred " + dictionary_up_to_nine[amount_minus_cents[2]])
+      dictionary_up_to_nine[amount_minus_cents[0]] + "hundred " + dictionary_up_to_nine[amount_minus_cents[2]]
+    elsif amount_minus_cents[1].eql?("0") && amount_minus_cents[2].eql?("0") && !phrase.include?(dictionary_up_to_nine[amount_minus_cents[0]] + "hundred ")
+      dictionary_up_to_nine[amount_minus_cents[0]] + "hundred "
+    elsif ("2".."9").include?(amount_minus_cents[1]) && amount_minus_cents[2].eql?("0") && !phrase.include?(dictionary_up_to_nine[amount_minus_cents[0]] + "hundred " + dictionary_up_to_ninety[amount_minus_cents[1]])
+      dictionary_up_to_nine[amount_minus_cents[0]] + "hundred " + dictionary_up_to_ninety[amount_minus_cents[1]]
+    else
+      ""
+    end
   end
 
   def fraction(cents)
@@ -113,11 +168,5 @@ class Convert
      "4" => "fourteen ", "5" => "fifteen ", "6" => "sixteen ", "7" => "seventeen ",
      "8" => "eighteen ", "9" => "nineteen "}
   end
-
-  #may need a separate teen dictionary for over hunred
-
-  def place_values
-    ["hundred ", "thousand ", "million ", "billion "]
-  end
 end
-Convert.new.amount_to_words("%.2f" % 89.90)
+Convert.new.amount_to_words("%.2f" % 149.90)
